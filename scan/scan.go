@@ -1,6 +1,6 @@
 package scan
 
-type scanner struct {
+type Scanner struct {
 	source     string
 	characters []string
 	tokens     []token
@@ -9,13 +9,15 @@ type scanner struct {
 	line       int
 }
 
-func NewScanner(source string) *scanner {
-	p := scanner{source: source, characters: []string{}, tokens: []token{}, start: 0, current: 0, line: 1}
+// NewScanner creates a Lox scanner from a source code string
+func NewScanner(source string) *Scanner {
+	p := Scanner{source: source, characters: []string{}, tokens: []token{}, start: 0, current: 0, line: 1}
 	p.sourceToChars()
 	return &p
 }
 
-func (s *scanner) ScanTokens() []token {
+// ScanTokens scans the source string and returns a slice of tokens
+func (s *Scanner) ScanTokens() []token {
 	for !s.isAtEnd() {
 		s.start = s.current
 		s.scanToken()
@@ -25,7 +27,7 @@ func (s *scanner) ScanTokens() []token {
 	return s.tokens
 }
 
-func (s *scanner) scanToken() {
+func (s *Scanner) scanToken() {
 	c := s.advance()
 	switch c {
 	case "(":
@@ -50,13 +52,13 @@ func (s *scanner) scanToken() {
 }
 
 // advance gets the character pointed at by current, increments current, and returns the character
-func (s *scanner) advance() string {
+func (s *Scanner) advance() string {
 	char := s.characters[s.current]
 	s.current++
 	return char
 }
 
-func (s *scanner) addToken(t tokenType) {
+func (s *Scanner) addToken(t tokenType) {
 	var bytes []byte
 	for _, char := range s.characters[s.start:s.current] {
 		bytes = append(bytes, []byte(char)...)
@@ -65,12 +67,12 @@ func (s *scanner) addToken(t tokenType) {
 	s.tokens = append(s.tokens, token{tType: t, lexeme: string(bytes), literal: "", line: s.line})
 }
 
-func (s *scanner) sourceToChars() {
+func (s *Scanner) sourceToChars() {
 	for _, k := range s.source {
 		s.characters = append(s.characters, string(k))
 	}
 }
 
-func (s *scanner) isAtEnd() bool {
+func (s *Scanner) isAtEnd() bool {
 	return s.current >= len(s.characters)
 }
