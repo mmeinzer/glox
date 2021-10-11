@@ -11,7 +11,7 @@ func main() {
 	args := os.Args[1:]
 	var err error
 	if len(args) > 1 {
-		fmt.Println("Usage: jlox [script]")
+		fmt.Println("Usage: glox [script]")
 		os.Exit(64)
 	} else if len(args) == 1 {
 		err = runFile(args[0])
