@@ -31,8 +31,7 @@ func (s *Scanner) ScanTokens() []token {
 }
 
 func (s *Scanner) scanToken() {
-	c := s.advance()
-	switch c {
+	switch s.advance() {
 	case "(":
 		s.addToken(leftParen)
 	case ")":
@@ -51,6 +50,50 @@ func (s *Scanner) scanToken() {
 		s.addToken(semicolon)
 	case "*":
 		s.addToken(star)
+	case "!":
+		if s.match("=") {
+			s.addToken(bangEqual)
+		} else {
+			s.addToken(bang)
+		}
+	case "=":
+		// token: ==
+		if s.match("=") {
+			s.addToken(equalEqual)
+		} else {
+			s.addToken(equal)
+		}
+	case "<":
+		if s.match("=") {
+			// token: <=
+			s.addToken(lessEqual)
+		} else {
+			s.addToken(less)
+		}
+	case ">":
+		// token: >=
+		if s.match("=") {
+			s.addToken(greateEqual)
+		} else {
+			s.addToken(greater)
+		}
+	case "/":
+		// token: // (start of a comment)
+		if s.match("/") {
+			for s.peek() != "\n" && s.isAtEnd() {
+				// Drop everything until the end of the line
+				s.advance()
+			}
+		} else {
+			s.addToken(slash)
+		}
+	case " ":
+	case "\r":
+	case "\t":
+		// Ignore whitepsace
+		break
+	case "\n":
+		s.line++
 	default:
 		s.errorReporter.Error(s.line, "Unexpected character.")
 	}
@@ -80,4 +123,26 @@ func (s *Scanner) sourceToChars() {
 
 func (s *Scanner) isAtEnd() bool {
 	return s.current >= len(s.characters)
+}
+
+// match determines if the current character matches match and consumes it if so
+func (s *Scanner) match(expected string) bool {
+	if s.isAtEnd() {
+		return false
+	}
+
+	if s.characters[s.current] != expected {
+		return false
+	}
+
+	s.current++
+	return true
+}
+
+func (s *Scanner) peek() string {
+	if s.isAtEnd() {
+		return "" // TODO: This is \0 in CI but that gives a syntax error in Go
+	}
+
+	return s.characters[s.current]
 }
