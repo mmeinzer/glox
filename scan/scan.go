@@ -1,16 +1,19 @@
 package scan
 
+import "github.com/mmeinzer/glox/report"
+
 type Scanner struct {
-	source     string
-	characters []string
-	tokens     []token
-	start      int
-	current    int
-	line       int
+	source        string
+	characters    []string
+	tokens        []token
+	start         int
+	current       int
+	line          int
+	errorReporter report.ErrorReporter
 }
 
 // NewScanner creates a Lox scanner from a source code string
-func NewScanner(source string) *Scanner {
+func NewScanner(source string, reporter report.ErrorReporter) *Scanner {
 	p := Scanner{source: source, characters: []string{}, tokens: []token{}, start: 0, current: 0, line: 1}
 	p.sourceToChars()
 	return &p
@@ -48,6 +51,8 @@ func (s *Scanner) scanToken() {
 		s.addToken(semicolon)
 	case "*":
 		s.addToken(star)
+	default:
+		s.errorReporter.Error(s.line, "Unexpected character.")
 	}
 }
 

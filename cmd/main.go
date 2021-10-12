@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mmeinzer/glox/report"
 	"github.com/mmeinzer/glox/scan"
 )
 
@@ -40,7 +41,8 @@ func runPrompt() error {
 }
 
 func run(source string) error {
-	scanner := scan.NewScanner(source)
+	errorReporter := report.NewErrorReporter()
+	scanner := scan.NewScanner(source, errorReporter)
 	tokens := scanner.ScanTokens()
 
 	for _, t := range tokens {
